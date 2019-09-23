@@ -1,4 +1,4 @@
-let score=0;
+let score=0; // Переменная для хранения набранныя очков
 let picturesArr = [
 {src:"allGraphics/images/task1/image1.jpg",isStillLife:false},
 {src:"allGraphics/images/task1/image2.jpg",isStillLife:false},
@@ -15,9 +15,10 @@ let picturesArr = [
 {src:"allGraphics/images/task1/image13.jpg",isStillLife:false},
 {src:"allGraphics/images/task1/image14.jpg",isStillLife:false},
 {src:"allGraphics/images/task1/image15.jpg",isStillLife:false},
-];
-let uniqueNumbers=[];
+]; //Массив картин
+let uniqueNumbers=[]; //Массив определяющий порядок отображения картин
 
+//Функция заполняющая массив uniqueNumbers уникальными цифрами
 function randomNumberGenerator() {
 	let i=0;
 	while(i<picturesArr.length) {
@@ -29,12 +30,13 @@ function randomNumberGenerator() {
 	}
 }
 
+//Объект отвечающий за таймер
 class Timer {
 	constructor(elem) {
 		this.elem= elem;
 		this.time = this.elem.textContent;
 	}
-	changeTime() {
+	changeTime() {//Изменяем время
 		let timer=setInterval( () => {
 			this.time--;
 			this.elem.textContent=this.time;
@@ -46,33 +48,36 @@ class Timer {
 	}
 }
 
+//Объект отвечающий за отображение и анимацию картин
 class Picture {
 	constructor(elem) {
 		this.elem= elem;
 	}
-	startCoords(src) {
+	startCoords(src) { //Выносим картину за пределы документа
 		this.elem.style.display="block";
 		this.elem.style.top= `${-this.elem.clientHeight}px`;
 		this.elem.children[0].src=src;
 		this.topPosition=0;
 	}
-	movePosition(src) {
+	movePosition(src) { //Перемещение картины до середины экрана
 		this.startCoords(src);
-		document.querySelector("#devil img").src="graphicsForTask/11 9-03.png";
-		document.querySelector("#buttons").style.pointerEvents="none";
+		document.querySelector("#devil img").src="graphicsForTask/11 9-03.png"; //Изменяем картинку чёртика
+		document.querySelector("#buttons").style.pointerEvents="none"; //Делаем кнопки не кликабельными, чтобы не сломать анимацию
 		let animation = setInterval(()=> {
 			this.topPosition+=1;
-			this.elem.style.top=`${-this.elem.clientHeight+this.topPosition}px`;
+			this.elem.style.top=`${-this.elem.clientHeight+this.topPosition}px`; //Двигаем картинку
+			//Проверяем, дошла ли картинка до середины документа, то останавливаем анимацию и делаем кнопки кликабельными
 			if (this.elem.style.top.slice(0,this.elem.style.top.length-2) >= document.documentElement.clientHeight/2-this.elem.clientHeight/2 || document.querySelector("#timer").textContent=="0") {
-				clearInterval(animation);
+				clearInterval(animation); 
 				document.querySelector("#buttons").style.pointerEvents="auto";
 			}
 		},5);
 	}
-	fastMovePosition() {
+	fastMovePosition() { //Перемещение картины после середины экрана (более быстрое)
 		let fastAnimation = setInterval(()=> {
 			this.topPosition+=4;
 			this.elem.style.top=`${-this.elem.clientHeight+this.topPosition}px`;
+			//Если вышло за пределы экрана
 			if (this.elem.style.top>=`${document.documentElement.clientHeight}px`) {
 				clearInterval(fastAnimation);
 				this.elem.style.display="none";
@@ -81,6 +86,7 @@ class Picture {
 	}
 }
 
+//Объект отвечающий за процесс игры
 class Game {
 	constructor() {
 		this.isWin=0;
@@ -90,11 +96,12 @@ class Game {
 		this.devil = document.querySelector("#devil img");
 	}
 	startGame() {
-		randomNumberGenerator();
-		this.clock.changeTime();
+		randomNumberGenerator(); //Заполняем массив uniqueNumbers
+		this.clock.changeTime(); //Запускаем таймер
+		//Запускаем анимацию картины, в соответстивии с превой цифрой массива uniqueNumbers
 		this.picture.movePosition(picturesArr[uniqueNumbers[this.id]].src);
 	}
-	clickOnButtons() {
+	clickOnButtons() { //При клике на кнопку
 		this.checkTrueAnswer();
 		setTimeout(() => {this.picture.fastMovePosition();},500);
 		setTimeout(()=>{
@@ -102,7 +109,7 @@ class Game {
 			this.picture.movePosition(picturesArr[uniqueNumbers[this.id]].src);
 		},2000);
 	}
-	checkTrueAnswer() {
+	checkTrueAnswer() { //Проверяем правильность ответа
 		if((event.target.id=="stillLife"&&picturesArr[uniqueNumbers[this.id]].isStillLife==true)||(event.target.id=="stillLife_no"&&picturesArr[uniqueNumbers[this.id]].isStillLife==false)) {
 			score+=10;
 			document.querySelector("#score").textContent=`Счёт: ${score}`;
@@ -112,7 +119,7 @@ class Game {
 			this.devil.src="graphicsForTask/11 9-05.png";
 		}
 	}
-	endGame() {
+	endGame() { //Завершение игры
 		this.picture.fastMovePosition();
 		setTimeout(()=>{
 			document.querySelector("#mainContainer").style.display="none";
